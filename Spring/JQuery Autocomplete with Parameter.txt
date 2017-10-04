@@ -1,0 +1,26 @@
+//JQuery
+$('#tags').autocomplete({
+	minLength: 2,
+	delay: 0,
+	source : function(request, response) {
+		var jsonValues = {
+			term : request.term,
+			ccmcategory : $('#ccmcategory').val()
+		};
+		$.getJSON("search", jsonValues, function(result) {
+			response($.map(result, function(item) {
+				return {
+					label : item.cmcname,
+					value : item.cmcname,
+					link : 'college/'+item.cmcname+'-'+item.cmclocation+'-'+item.cmuid+'.html',
+				};
+			}));
+		});
+	},
+	select : function(e, ui) {
+		location.href = ui.item.link;
+	}
+});
+
+
+//Controller

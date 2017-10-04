@@ -1,0 +1,22 @@
+$(function() {
+		$("#projectname").autocomplete({
+			source: function(request, response) {
+			$.ajax({
+			url: "getprojectname.html",
+		    type: "POST",
+			dataType: "json",
+			data: {	name: request.term},
+			success: function( data ) {			
+			response( $.map( data, function( item ) {
+				return {
+					label: item.name,
+					value: item.value,
+					id: item.id,
+			};}));},
+			error: function (error) {
+		       alert('error: ' + error);
+		    }});},
+			select : function(e, ui) {
+		    	$("#pid").val(ui.item.id);
+			},});
+		});

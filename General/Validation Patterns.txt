@@ -1,0 +1,8 @@
+var mobileNoPattern = /^(7|8|9)\d{9}$/;
+var emailIdPattern = /\S+@\S+\.\S+/;
+
+if (document.getElementById("uaname").value == "") {
+document.getElementById('errorMsg').innerHTML = 'Your Name is required!';
+$('.alert-show').show().delay(2000).fadeOut();
+return false;
+}

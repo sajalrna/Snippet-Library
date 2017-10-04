@@ -1,0 +1,32 @@
+//JQuery
+$("#collegeName").autocomplete({
+			minLength: 2,
+			delay:0,
+			source : function(request, response) {
+				$.ajax({
+					url : "collegesearch",
+					type : "POST",
+					dataType : "json",
+					data : {
+						name : request.term
+					},
+					success : function(data) {
+						response($.map(data, function(item) {
+							return {
+								label : item.cmcname,
+								value : item.cmcname,
+								link : '/admincollege/edit-college/'+item.cmcname+'.html',
+							};
+						}));0
+					},
+					error : function(error) {
+						alert('error: ' + error.responseText);
+					}
+				});
+			},
+			select : function(e, ui) {
+				location.href = ui.item.link;
+			},
+		});
+
+//Controller
