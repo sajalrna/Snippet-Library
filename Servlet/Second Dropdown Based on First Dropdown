@@ -1,0 +1,22 @@
+$(document).on('blur','#Client_Name', MakeChange);
+
+function MakeChange(){
+    var $clientName=$("#Client_Name").val();
+    $.ajax({
+    	url:'somepage.html',
+        method:'GET',
+        data:{clientName: $clientName},
+        dataType:'json',
+        success:function(response){
+        	var html;
+             var $select = $('#Project_Name');
+             $.each(response.arrayName, function(options, values) {
+              html += '<option name="' + values.pregpname + '" >'+ values.pregpname +'</option>';
+             });
+            $select.html(html);
+        },
+        error:function(response){
+        	alert(JSON.stringify(response));
+        }
+    });
+}
