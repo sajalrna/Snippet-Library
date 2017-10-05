@@ -20,3 +20,32 @@ function MakeChange(){
         }
     });
 }
+
+urlrewrite somepage.html to somepage.java file
+
+//somepage.java
+protected void doGet(HttpServletRequest request,
+	HttpServletResponse response) throws ServletException, IOException {
+
+	JSONArray cellarray = new JSONArray();
+	JSONObject cellobj = null;
+	JSONObject jo = new JSONObject();
+	String make = request.getParameter("make");
+	try {
+		Connection con = DbCon.getCon("", "", "");
+		Statement stmt = con.createStatement();
+		ResultSet rs = stmt.executeQuery("Select * from ucmakemodelvariant where ucmmvmake='" + make + "'");
+		
+		while (rs.next()) {
+		cellobj = new JSONObject();
+		cellobj.put("ucmmvmodel", rs.getString(3));
+		cellarray.add(cellobj);
+		}
+		jo.put("arrayName", cellarray);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(jo.toString());
+	} catch (Exception e) {
+		System.out.println(e);
+	}
+	}
