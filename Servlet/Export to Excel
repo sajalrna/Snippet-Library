@@ -1,0 +1,268 @@
+//Action:
+
+package export_to_excel;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpSession;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import commons.DbCon;
+
+public class TelecomSalesChallan_ACT extends HttpServlet {
+
+	public static void doExport(ArrayList<Object[]> dataList) {
+		ArrayList<Object[]> dataList2 = null;
+		ArrayList<Object[]> dataList3 = null;
+		if (dataList != null && !dataList.isEmpty()) {
+			HSSFWorkbook workBook = new HSSFWorkbook();
+			HSSFSheet sheet = workBook.createSheet();
+			HSSFRow headingRow = sheet.createRow(0);
+			headingRow.createCell(0).setCellValue("SN");
+			headingRow.createCell(1).setCellValue("Customer Name");
+			headingRow.createCell(2).setCellValue("Dispatch Cust.");
+			headingRow.createCell(3).setCellValue("Site Name");
+			headingRow.createCell(4).setCellValue("Total Amount");
+			headingRow.createCell(5).setCellValue("Challan ID");
+			headingRow.createCell(6).setCellValue("Type");
+			headingRow.createCell(7).setCellValue("Date");
+			short rowNo = 1;
+			for (Object[] objects : dataList) {
+				dataList2 = TelecomSalesChallan_ACT.getTableData2(objects[5].toString());
+				dataList3 = TelecomSalesChallan_ACT.getTableData3(objects[2].toString());
+				HSSFRow row = sheet.createRow(rowNo);
+				row.createCell(0).setCellValue(objects[0].toString());
+				for (Object[] objects2 : dataList2) {
+					row.createCell(1).setCellValue(objects2[1].toString());
+				}
+				for (Object[] objects3 : dataList3) {
+					row.createCell(2).setCellValue(objects3[1].toString());
+				}
+				for (Object[] objects2 : dataList2) {
+					row.createCell(3).setCellValue(objects2[2].toString());
+				}
+				row.createCell(4).setCellValue(objects[1].toString());
+				row.createCell(5).setCellValue(objects[2].toString());
+				row.createCell(6).setCellValue(objects[3].toString());
+				row.createCell(7).setCellValue(objects[4].toString());
+				rowNo++;
+			}
+
+			try {
+				String file = "/home/industrialpowers/public_html/export/telecom_sales.xls";
+				FileOutputStream fos = new FileOutputStream(file);
+				workBook.write(fos);
+				fos.flush();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static ArrayList<Object[]> getTableData(HttpSession SES) throws SQLException {
+
+		String titemtype = (String) SES.getAttribute("titemtype");
+		String tchallanid = (String) SES.getAttribute("tchallanid");
+		String tpaymentstatus = (String) SES.getAttribute("tpaymentstatus");
+		String tsite = (String) SES.getAttribute("tsite");
+		String monthDatetele = (String) SES.getAttribute("monthDatetele");
+
+		ArrayList<Object[]> tableDataList = null;
+		Connection con = DbCon.getCon("", "", "");
+		StringBuffer VCQUERY = null;
+		try {
+			if (titemtype == null || titemtype.length() <= 0) {
+				titemtype = "NA";
+			}
+			if (tchallanid == null || tchallanid.length() <= 0) {
+				tchallanid = "NA";
+			}
+			if (tpaymentstatus == null || tpaymentstatus.length() <= 0) {
+				tpaymentstatus = "NA";
+			}
+			if (tsite == null || tsite.length() <= 0) {
+				tsite = "NA";
+			}
+			if (monthDatetele == null || monthDatetele.length() <= 0 || monthDatetele == "null") {
+				monthDatetele = "NA";
+			}
+
+			VCQUERY = new StringBuffer(
+					"select distinct tscuid,tsctamt,challanuid,tctype,salesdate,custuid from telecomsaleschallan where tscstatus=1");
+			if (titemtype != "NA") {
+				VCQUERY.append(" and tctype like '%" + titemtype + "%'");
+			}
+			if (tchallanid != "NA") {
+				VCQUERY.append(" and challanuid like '%" + tchallanid + "%'");
+			}
+			if (tpaymentstatus != "NA") {
+				VCQUERY.append(" and paymentstatus='" + tpaymentstatus + "'");
+			}
+			if (tsite != "NA") {
+				VCQUERY.append(" and custuid like '" + tsite + "'");
+			}
+			if (monthDatetele != "NA") {
+				VCQUERY.append(" and salesdate like'%" + monthDatetele + "'");
+			}
+			PreparedStatement ps = con.prepareStatement(VCQUERY.toString());
+			ResultSet result = ps.executeQuery();
+			tableDataList = new ArrayList<Object[]>();
+			while (result.next()) {
+				Object[] objArray = new Object[6];
+				objArray[0] = result.getInt(1);
+				objArray[1] = result.getString(2);
+				objArray[2] = result.getString(3);
+				objArray[3] = result.getString(4);
+				objArray[4] = result.getString(5);
+				objArray[5] = result.getString(6);
+				tableDataList.add(objArray);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+		}
+		return tableDataList;
+	}
+
+	public static ArrayList<Object[]> getTableData2(String custid) {
+		StringBuffer VCQUERY = null;
+		Connection con = DbCon.getCon("", "", "");
+		ArrayList<Object[]> tableDataList = null;
+		try {
+			if (custid == null || custid.length() <= 0) {
+				custid = "NA";
+			}
+			VCQUERY = new StringBuffer(
+					"select serviceid,custname, sitename from telecom_service_master where servicestatus=1");
+
+			if (custid != "NA") {
+				VCQUERY.append(" and serviceid ='" + custid + "'");
+			}
+			PreparedStatement ps = con.prepareStatement(VCQUERY.toString());
+			ResultSet result = ps.executeQuery();
+			tableDataList = new ArrayList<Object[]>();
+			while (result.next()) {
+				Object[] objArray = new Object[3];
+				objArray[0] = result.getInt(1);
+				objArray[1] = result.getString(2);
+				objArray[2] = result.getString(3);
+				tableDataList.add(objArray);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+		}
+		return tableDataList;
+	}
+
+	public static ArrayList<Object[]> getTableData3(String Challanid) {
+		StringBuffer VCQUERY = null;
+		Connection con = DbCon.getCon("", "", "");
+		ArrayList<Object[]> tableDataList = null;
+		try {
+			VCQUERY = new StringBuffer(
+					"SELECT dispatchid,ipstechname FROM dispatch_master where challanuid='" + Challanid + "' ");
+			PreparedStatement ps = con.prepareStatement(VCQUERY.toString());
+			ResultSet result = ps.executeQuery();
+			tableDataList = new ArrayList<Object[]>();
+			while (result.next()) {
+				Object[] objArray = new Object[2];
+				objArray[0] = result.getInt(1);
+				objArray[1] = result.getString(2);
+				tableDataList.add(objArray);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+		}
+		return tableDataList;
+	}
+}
+
+
+//Export:
+
+package export_to_excel;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+public class TelecomSalesChallan_EX extends HttpServlet {
+
+	boolean status = false;
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		RequestDispatcher rd = null;
+		HttpSession session = request.getSession();
+		String uavalidtokenno111 = (String) session.getAttribute("uavalidtokenno");
+		String uaIsValid = (String) session.getAttribute("loginuID");
+		if (uaIsValid == null || uaIsValid.equals("") || uavalidtokenno111 == null || uavalidtokenno111.equals("")) {
+			rd = request.getRequestDispatcher("/login.html");
+			rd.forward(request, response);
+		}
+		String type = request.getParameter("jsstype");
+		String pagename = request.getParameter("pageName");
+		if (type != null && pagename != null && type.equalsIgnoreCase("SSEqury")
+				&& pagename.equalsIgnoreCase("manageservice.jsp")) {
+
+			HttpSession SES = request.getSession(true);
+
+			ArrayList<Object[]> dataList = null;
+			try {
+				dataList = TelecomSalesChallan_ACT.getTableData(SES);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			if (dataList != null && dataList.size() > 0) {
+				TelecomSalesChallan_ACT.doExport(dataList);
+			}
+
+			session.setAttribute("ErrorMessage", "Data is Successfully Exported.");
+			response.sendRedirect(request.getContextPath() + "/notification.html");
+
+		}
+	}
+
+}
