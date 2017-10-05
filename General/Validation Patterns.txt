@@ -6,3 +6,19 @@ document.getElementById('errorMsg').innerHTML = 'Your Name is required!';
 $('.alert-show').show().delay(2000).fadeOut();
 return false;
 }
+
+function validate() {
+	var inputs, index;
+	inputs = document.getElementById('inputform');
+	for (index = 0; index < inputs.elements.length; ++index) {
+	    if(inputs[index].value == ""){
+	    	var vname = inputs[index].name;
+	    	var vid = inputs[index].id;
+	    	var errorid = vname+'error';
+	    	document.getElementById(errorid).innerHTML = vid+' is required.';
+	    	document.getElementById(errorid).style.color = "#800606";
+	    	return false;
+	    }
+	}
+document.inputform.submit();
+}
