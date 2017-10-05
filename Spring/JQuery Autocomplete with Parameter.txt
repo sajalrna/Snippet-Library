@@ -24,3 +24,10 @@ $('#tags').autocomplete({
 
 
 //Controller
+
+@RequestMapping(value = "/search", method = RequestMethod.GET)
+	@ResponseBody
+	public List<College> searchCourse( String ccmcategory, @RequestParam("term") String coursename) {
+		List<College> collegeList = collegeDAO.getCollegeByCourse(coursename, ccmcategory);
+		return collegeList;
+	}
