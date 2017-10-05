@@ -1,3 +1,5 @@
+//For insert:
+
 public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		  
 		  boolean status = false;
@@ -31,6 +33,44 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			response.sendRedirect(request.getContextPath() + "/notification.html");
 		} else {
 			session.setAttribute("ErrorMessage", "Work is not Added!");
+			response.sendRedirect(request.getContextPath() + "/notification.html");
+		}
+	}
+
+//For Update:
+
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		  
+		boolean status = false;
+		HttpSession session = request.getSession();
+		  
+	    response.setContentType("text/html");
+	 
+	    Enumeration<String> e = request.getParameterNames();
+	    StringBuffer sb = null;
+	    sb = new StringBuffer("");
+	    String fieldName = null;
+	    String fieldValue = null;
+	 
+	    while(e.hasMoreElements())
+	    {
+	      Object obj = e.nextElement();
+	      fieldName = (String) obj;
+	      fieldValue = request.getParameter(fieldName);
+	      sb.append(fieldName+"='"+fieldValue+"',");
+	    }
+	    sb.setLength(sb.length() - 1);
+	   
+	    String addedby = (String)session.getAttribute("loginuID");
+	    String workid = request.getParameter("workid");
+	    
+	    status = WorksACT.UpdateWork(sb,addedby,workid);
+
+		if (status) {
+			session.setAttribute("ErrorMessage", "Work is Successfully Updated!");
+			response.sendRedirect(request.getContextPath() + "/notification.html");
+		} else {
+			session.setAttribute("ErrorMessage", "Work is not Updated!");
 			response.sendRedirect(request.getContextPath() + "/notification.html");
 		}
 	}
