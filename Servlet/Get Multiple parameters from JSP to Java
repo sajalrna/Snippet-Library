@@ -1,0 +1,36 @@
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		  
+		  boolean status = false;
+			HttpSession session = request.getSession();
+		  
+	    response.setContentType("text/html");
+	 
+	    Enumeration<String> e = request.getParameterNames();
+	    StringBuffer sb = null;
+	    sb = new StringBuffer("");
+	    StringBuffer sb1 = null;
+	    sb1 = new StringBuffer("");
+	    String fieldName = null;
+	    String fieldValue = null;
+	 
+	    while(e.hasMoreElements())
+	    {
+	      Object obj = e.nextElement();
+	      fieldName = (String) obj;
+	      fieldValue = request.getParameter(fieldName);
+	      sb.append(fieldName+",");
+	      sb1.append("'"+fieldValue+"',");
+	    }
+	    sb.setLength(sb.length() - 1);
+	    sb1.setLength(sb1.length() - 1);
+	   
+	    status = WorksACT.AddNewWork(sb,sb1);
+
+		if (status) {
+			session.setAttribute("ErrorMessage", "Work is Successfully Added!");
+			response.sendRedirect(request.getContextPath() + "/notification.html");
+		} else {
+			session.setAttribute("ErrorMessage", "Work is not Added!");
+			response.sendRedirect(request.getContextPath() + "/notification.html");
+		}
+	}
