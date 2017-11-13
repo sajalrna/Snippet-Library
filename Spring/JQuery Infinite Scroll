@@ -1,0 +1,44 @@
+<ul id="scrollmore"></ul>
+
+<script type="text/javascript">
+var counter=14;
+	$(window).scroll(function () {
+        if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+        	appendData();
+        }
+    });
+	
+	function appendData() {
+        var html = '';
+        if(document.getElementById("end").innerHTML=="End") return false;
+        $.ajax({
+        	beforeSend: function(){
+        	    $('.loader').show()
+       	    },
+			complete: function(){
+       	        $('.loader').hide();
+            },
+        	type: "POST",
+            url: '${pageContext.request.contextPath}/getmore-${type}',
+            data: {counter:counter},
+            success: function(data){
+            	for(i=0;i<data.length;i++)
+                	html += '<li class="col-md-12 col-sm-12 col-xs-12"></li>';
+                if(html!='') $('#scrollmore').append(html);
+                else document.getElementById("end").innerHTML = "End";
+            }
+        });
+        
+        counter=counter+14;
+    }
+</script>
+    
+//CONTROLLER    
+@RequestMapping("/getmore-{type}")
+public @ResponseBody List<School> showmore(@RequestBody String counter, @PathVariable("type") String type) {
+  String[] count = counter.split("=");
+  int startlimit = Integer.parseInt(count[1]);
+  int endlimit = startlimit+14;
+  List<School> moreschools = schoolDAO.getSchoolList(type, "limit "+startlimit+","+endlimit);
+  return moreschools;
+}
