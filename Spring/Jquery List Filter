@@ -1,0 +1,140 @@
+<script type="text/javascript">
+$(document).on("change",".check", function(){
+	filterschoolist(this.value, this.name,this.id, this.checked);
+	});
+	
+var ownership = [];
+var state = [];
+var loc = [];
+var board = [];
+
+function filterschoolist(value, name, id, check){
+	if(check){
+		if(id == 'smownership') ownership.push(value);
+		if(id == 'smstate') state.push(value);
+		if(id == 'smlocation') loc.push(value);
+		if(id == 'smtype') board.push(value);
+		$.ajax({
+			beforeSend: function(){
+        	    $('.loader').show()
+       	    },
+			complete: function(){
+       	        $('.loader').hide();
+            },
+			type : "POST",
+			contentType: "application/json",
+			url : '${pageContext.request.contextPath}/filter-'+name+'-list',
+			data : JSON.stringify({smownership : ownership,smstate : state ,smlocation : loc,smtype : board}),
+			success : function(result) {
+				if(result=="") $(".replacefilter").replaceWith('<ul class="list-product row list-unstyled replacefilter appendnewdata" id="scrollmore"></ul>');
+				else{
+					for(i=0;i<result.length;i++){
+						if(i==0) $(".replacefilter").replaceWith('<ul class="list-product row list-unstyled replacefilter appendnewdata" id="scrollmore"><li class="col-md-12 col-sm-12 col-xs-12"><div class="item-product clearfix"><div class="item-product-thumb"><a href="${pageContext.request.contextPath}/'+result[i].type+'/'+result[i].smabsurl+'-'+result[i].smuid+'.html" class="product-thumb-link"><img class="img-responsive" src="${pageContext.request.contextPath}/resources/images/'+result[i].smlogo+'" alt="'+result[i].smname+'" /></a></div><div class="item-product-info"><h3><a href="${pageContext.request.contextPath}/'+result[i].type+'/'+result[i].smabsurl+'-'+result[i].smuid+'.html">'+result[i].smname+' , <span>'+result[i].smlocation+'.</span></a></h3><ul class="clearfix"><li>Establish year : '+result[i].smyear+'</li><li>Ownership : '+result[i].smownership+'</li><li>State  : '+result[i].smstate+' </li><li>Country  : '+result[i].smcountry+'</li></ul><p>'+result[i].smabout+'</p></div></div></li><p id="end" style="display: none;"></p></li></ul>');
+						else $(".appendnewdata").append('<li class="col-md-12 col-sm-12 col-xs-12"><div class="item-product clearfix"><div class="item-product-thumb"><a href="${pageContext.request.contextPath}/'+result[i].type+'/'+result[i].smabsurl+'-'+result[i].smuid+'.html" class="product-thumb-link"><img class="img-responsive" src="${pageContext.request.contextPath}/resources/images/'+result[i].smlogo+'" alt="'+result[i].smname+'" /></a></div><div class="item-product-info"><h3><a href="${pageContext.request.contextPath}/'+result[i].type+'/'+result[i].smabsurl+'-'+result[i].smuid+'.html">'+result[i].smname+' , <span>'+result[i].smlocation+'.</span></a></h3><ul class="clearfix"><li>Establish year : '+result[i].smyear+'</li><li>Ownership : '+result[i].smownership+'</li><li>State  : '+result[i].smstate+' </li><li>Country  : '+result[i].smcountry+'</li></ul><p>'+result[i].smabout+'</p></div></div></li><p id="end" style="display: none;"></p></li>');
+					}
+				}
+			},
+			error : function(error) {
+				alert(error.responseText);
+			}
+		});
+		}
+		else{
+			var removeItem = value;
+			if(id == 'smownership') ownership.splice( $.inArray(removeItem, ownership), 1 );
+			if(id == 'smstate') state.splice( $.inArray(removeItem, state), 1 );
+			if(id == 'smlocation') loc.splice( $.inArray(removeItem, loc), 1 );
+			if(id == 'smtype') board.splice( $.inArray(removeItem, board), 1 );
+			$.ajax({
+				beforeSend: function(){
+	        	    $('.loader').show()
+	       	    },
+				complete: function(){
+	       	        $('.loader').hide();
+	            },
+				type : "POST",
+				contentType: "application/json",
+				url : '${pageContext.request.contextPath}/filter-'+name+'-list',
+				data : JSON.stringify({smownership : ownership,smstate : state ,smlocation : loc,smtype : board}),
+				success : function(result) {
+					if(result=="") $(".replacefilter").replaceWith('<ul class="list-product row list-unstyled replacefilter appendnewdata" id="scrollmore"></ul>');
+					else{
+						if(result=="") $(".replacefilter").replaceWith('<ul class="list-product row list-unstyled replacefilter appendnewdata" id="scrollmore"></ul>');
+						for(j=0;j<result.length;j++){
+							if(j==0) $(".replacefilter").replaceWith('<ul class="list-product row list-unstyled replacefilter appendnewdata" id="scrollmore"><li class="col-md-12 col-sm-12 col-xs-12"><div class="item-product clearfix"><div class="item-product-thumb"><a href="${pageContext.request.contextPath}/'+result[j].type+'/'+result[j].smabsurl+'-'+result[j].smuid+'.html" class="product-thumb-link"><img class="img-responsive" src="${pageContext.request.contextPath}/resources/images/'+result[j].smlogo+'" alt="'+result[j].smname+'" /></a></div><div class="item-product-info"><h3><a href="${pageContext.request.contextPath}/'+result[j].type+'/'+result[j].smabsurl+'-'+result[j].smuid+'.html">'+result[j].smname+' , <span>'+result[j].smlocation+'.</span></a></h3><ul class="clearfix"><li>Establish year : '+result[j].smyear+'</li><li>Ownership : '+result[j].smownership+'</li><li>State  : '+result[j].smstate+' </li><li>Country  : '+result[j].smcountry+'</li></ul><p>'+result[j].smabout+'</p></div></div></li><p id="end" style="display: none;"></p></li></ul>');
+							else $(".appendnewdata").append('<li class="col-md-12 col-sm-12 col-xs-12"><div class="item-product clearfix"><div class="item-product-thumb"><a href="${pageContext.request.contextPath}/'+result[j].type+'/'+result[j].smabsurl+'-'+result[j].smuid+'.html" class="product-thumb-link"><img class="img-responsive" src="${pageContext.request.contextPath}/resources/images/'+result[j].smlogo+'" alt="'+result[j].smname+'" /></a></div><div class="item-product-info"><h3><a href="${pageContext.request.contextPath}/'+result[j].type+'/'+result[j].smabsurl+'-'+result[j].smuid+'.html">'+result[j].smname+' , <span>'+result[j].smlocation+'.</span></a></h3><ul class="clearfix"><li>Establish year : '+result[j].smyear+'</li><li>Ownership : '+result[j].smownership+'</li><li>State  : '+result[j].smstate+' </li><li>Country  : '+result[j].smcountry+'</li></ul><p>'+result[j].smabout+'</p></div></div></li><p id="end" style="display: none;"></p></li>');
+						}
+					}
+				},
+				error : function(error) {
+					alert(error.responseText);
+				}
+			});
+		}
+}
+</script>
+
+//CONTROLLER
+
+@RequestMapping(value="/filter-{pagename}-list", method=RequestMethod.POST)
+    @ResponseBody
+    public List<School> filter(@PathVariable("pagename") String pagename, @RequestBody String data, Model model) {
+    	List<School> schoolList = null;
+		try {
+			schoolList = schoolDAO.getFilterSchoolList(pagename, data, 14);
+		} catch (Exception e) {
+			log.trace("school filter list");
+		}
+    	return schoolList;
+    }
+    
+//DAO IMPL
+
+public List<School> getFilterSchoolList(String type, String data, int limit) {
+		StringBuffer sql= new StringBuffer("select * from school_master where smstatus = 1 ");
+		if(type.equals("school")) sql.append(" and type = 'school' ");
+		else if(type.equals("play-school")) sql.append(" and type = 'play-school' ");
+		else if(type.equals("training-institute")) sql.append(" and type = 'training-institute' ");
+		else if(type.equals("coaching-institute")) sql.append(" and type = 'coaching-institute' ");
+		JSONParser parser = new JSONParser();
+    	try {
+    		Object obj = parser.parse(data);
+    		JSONObject jsonobj = (JSONObject) obj;
+    		JSONArray smownership = (JSONArray) jsonobj.get("smownership");
+    		Iterator<String> smown = smownership.iterator();
+    		if(smown.hasNext()) sql.append("and smownership in (");
+    		while(smown.hasNext()) {
+    			sql.append("'"+smown.next()+"',");
+    			if(!smown.hasNext()) sql.setLength(sql.length() - 1);
+    			if(!smown.hasNext()) sql.append(") ");
+    		}
+    		JSONArray smstate = (JSONArray) jsonobj.get("smstate");
+    		Iterator<String> smsta = smstate.iterator();
+    		if(smsta.hasNext()) sql.append("and smstate in (");
+    		while(smsta.hasNext()) {
+    			sql.append("'"+smsta.next()+"',");
+    			if(!smsta.hasNext()) sql.setLength(sql.length() - 1);
+    			if(!smsta.hasNext()) sql.append(") "); 
+    		}
+    		JSONArray smlocation = (JSONArray) jsonobj.get("smlocation");
+    		Iterator<String> smloc = smlocation.iterator();
+    		if(smloc.hasNext()) sql.append("and smlocation in (");
+    		while(smloc.hasNext()) {
+    			sql.append("'"+smloc.next()+"',");
+    			if(!smloc.hasNext()) sql.setLength(sql.length() - 1);
+    			if(!smloc.hasNext()) sql.append(") ");
+    		}
+    		JSONArray smtype = (JSONArray) jsonobj.get("smtype");
+    		Iterator<String> smty = smtype.iterator();
+    		if(smty.hasNext()) sql.append("and smtype in (");
+    		while(smty.hasNext()) {
+    			sql.append("'"+smty.next()+"',");
+    			if(!smty.hasNext()) sql.setLength(sql.length() - 1);
+    			if(!smty.hasNext()) sql.append(") ");
+    		}
+    	}
+    	catch (Exception e) {}
+		sql.append(" order by smuid limit "+limit);
+		List<School> schools = jdbc.query(sql.toString(), new BeanPropertyRowMapper<School>(School.class));
+		return schools;
+	}
